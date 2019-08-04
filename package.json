@@ -2,17 +2,26 @@
   "name": "ts-mc-030819",
   "version": "1.0.0",
   "description": "",
-  "main": "example.ts",
+  "main": "old/example.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^3.5.3"
+    "@types/jquery": "^3.3.30",
+    "html-webpack-plugin": "^3.2.0",
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6",
+    "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
+    "lodash": "^4.17.15",
     "tslint": "^5.18.0"
   }
 }

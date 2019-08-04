@@ -5,6 +5,7 @@
     ],
     "jsRules": {},
     "rules": {
+        "variable-name": [false],
         "quotemark": [
             true,
             "single"

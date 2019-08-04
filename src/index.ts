@@ -1,118 +1,66 @@
-// class Point {
-//     public x: number = 1;
-//     public y: number = 2;
-//
-//     public constructor(x: number);
-//     public constructor(x: number, y: number);
-//     public constructor(x: number, y?: number) {
-//         this.x = x;
-//         this.y = y || 0;
-//     }
-//
-//     public onInit(): void {
-//
-//     }
-// }
-//
-// let p = new Point(1, 2);
-// p.onInit();
+import 'reflect-metadata';
 
+interface IRangeMetadata {
+    [key: string]: [number, number];
+}
 
-// class Point {
-//
-//     public constructor(
-//         public x: number,
-//         private y: number,
-//         protected z: number,
-//     ) {
-//     }
-//
-//     public onInit(): void {
-//     }
-// }
-//
-// class CustomPoint extends Point {
-//     public constructor(x: number, y: number, z: number) {
-//         super(x, y, z);
-//     }
-//     public onInit(): void {
-//         // do something
-//         super.onInit();
-//     }
-// }
-//
-// let p = new Point(1, 2);
-// p.
+const RANGE_KEY = 'RANGE_KEY';
 
+function Range(min: number = 0, max: number = 100) {
+    return (
+        target: any,
+        key: string,
+        parameterIndex: number,
+    ) => {
+        const existingRange: IRangeMetadata = Reflect.getMetadata(RANGE_KEY, target, key) || {};
+        existingRange[parameterIndex] = [min, max];
+        Reflect.defineMetadata(RANGE_KEY, existingRange, target, key);
+    };
+}
 
-// class Singleton {
-//
-//     public static getInstance(): Singleton {
-//         if (!Singleton.instance) {
-//             Singleton.instance = new Singleton();
-//         }
-//         return Singleton.instance;
-//     }
-//
-//     private static instance: Singleton;
-//
-//     private constructor() {
-//     }
-//
-// }
-//
-// let ins1 = Singleton.getInstance();
-// let ins2 = Singleton.getInstance();
-// let ins3 = Singleton.getInstance();
+/**
+ *
+ *    {
+ *        '1': [0,100]
+ *    }
+ *
+ *
+ * **/
 
-// type Constructable = new (...args: any[]) => {};
-//
-// function Timestamped<BaseClass extends Constructable>(Base: BaseClass) {
-//     return class extends Base {
-//         public timestamp = new Date();
-//     };
-// }
-//
-// function Tagged<BaseClass extends Constructable>(Base: BaseClass) {
-//     return class extends Base {
-//         public tag = ['ts'];
-//     };
-// }
-//
-// class Point {
-//
-//     public constructor(
-//         public x: number,
-//         private y: number,
-//         protected z: number,
-//     ) {
-//     }
-//
-//     public onInit(): void {
-//     }
-// }
-//
-// class CustomPoint extends Tagged(Timestamped(Point)) {
-// }
-//
-//
-// const p = new CustomPoint(1, 2, 3);
-// p.timestamp
+function Validate(
+    target: any,
+    key: string,
+    descriptor: PropertyDescriptor,
+) {
+    const savedValue = descriptor.value;
 
-// abstract class AbstractInput {
-//     public abstract value: any;
-//
-//     public onBlur(): void {
-//         // do something
-//     }
-//
-//     public abstract getValue(): any;
-// }
-//
-// class Input extends AbstractInput {
-//     public value: string = '';
-//
-//     public getValue(): string {
-//         return this.value;
-//     }
-// }
+    descriptor.value = (...args: number[]) => {
+        const monitoredRange: IRangeMetadata = Reflect.getMetadata(RANGE_KEY, target, key) || {};
+        for (const parameterIndex of Object.keys(monitoredRange)) {
+            const [min, max] = monitoredRange[parameterIndex];
+            const value = args[Number(parameterIndex)];
+            if (value < min || value > max) {
+                throw new Error(`Parameter of method ${key} on position ${parameterIndex} out of range [${min}, ${max}].
+                Current value ${value}`);
+            }
+        }
+        return savedValue(...args);
+    };
+}
+
+class Math {
+    @Validate
+    public updatePercentage(
+        @Range(0, 99)oldValue: number,
+        @Range(0, 100) newValue: number,
+    ) {
+        console.log(oldValue, newValue);
+    }
+}
+
+const m = new Math();
+m.updatePercentage(100, 50);
+
+setTimeout(() => {
+    m.updatePercentage(100, 150);
+}, 5000);

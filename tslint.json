@@ -21,7 +21,8 @@
         "max-classes-per-file": [
             true,
             100
-        ]
+        ],
+        "object-literal-sort-keys": false
     },
     "rulesDirectory": []
 }

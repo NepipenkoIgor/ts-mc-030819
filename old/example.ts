@@ -28,4 +28,5 @@ function sendUpdates(emailAddr: string | string[]) {
     } else {
         sendEmail(emailAddr.trim());
     }
+    emailAddr.
 }

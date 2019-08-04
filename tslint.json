@@ -17,6 +17,10 @@
             "time",
             "timeEnd",
             "trace"
+        ],
+        "max-classes-per-file": [
+            true,
+            100
         ]
     },
     "rulesDirectory": []
